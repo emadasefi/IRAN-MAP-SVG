@@ -1,2 +1,67 @@
-# IRAN-MAP-SVG
-An interactive, lightweight SVG map of Iran for websites and dashboards. Each province is a semantic SVG path that can be hovered, focused, selected, and connected to application data.
+# 🗺️ نقشه تعاملی ایران — استان، شهرستان، دهستان
+#  نقشهٔ تعاملی ایران با SVG
+نقشه وب‌محور و تعاملی از تقسیمات کشوری ایران با قابلیت زوم سه‌سطحی (استان ← شهرستان ← دهستان)، انیمیشن‌های نرم و طراحی کاملاً ریسپانسیو. بدون وابستگی به هیچ کتابخانه خارجی — فقط JavaScript خالص و SVG.
+
+این نقشه با تمرکز بر دسترس‌پذیری، چیدمان واکنش‌گرا و سازگاری با چارچوب‌های مختلف طراحی شده است. می‌توانید آن را به‌صورت SVG درون‌خطی جاسازی کنید یا به‌عنوان یک فایل خارجی بارگذاری کنید.
+
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/emadasefi/IRAN-MAP-SVG/screen.gif" alt="Demo" width="100%" />
+</p>
+
+---
+
+## ✨ ویژگی‌ها
+
+| ویژگی | توضیح |
+|-------|--------|
+| **سه سطح سلسله‌مراتبی** | استان ← شهرستان ← دهستان با کلیک |
+| **انیمیشن زوم نرم** | با `requestAnimationFrame` و easing |
+| **ریسپانسیو** | تطبیق خودکار viewBox با اندازه صفحه |
+| **دسترس‌پذیری** | پشتیبانی از کیبورد (Enter/Space) و aria-label |
+| **بدون وابستگی** | Vanilla JS — بدون Leaflet, Mapbox, D3 |
+| **دو نسخه** | Embedded (فایل تکی) و External (چند فایل) |
+
+---
+
+## 📊 جدول کامل خروجی‌ها و حجم فایل‌ها
+
+| نام فایل / پوشه | نوع | حجم | تعداد / توضیحات |
+| :--- | :--- | :--- | :--- |
+| `index.html` | Embedded | **12 MB** | نسخه تک‌فایل (آفلاین و یکپارچه) |
+| `index_external.html` | Web | **12 KB** | نسخه سبک (بارگذاری پویا از فایل‌های خارجی) |
+| `iran_provinces.svg` | SVG | **2.8 MB** | نقشه یکپارچه کل استان‌ها |
+| `iran_counties.svg` | SVG | **3.7 MB** | نقشه یکپارچه کل شهرستان‌ها |
+| `iran_dehestans.svg` | SVG | **5.3 MB** | نقشه یکپارچه کل دهستان‌ها |
+| `counties.zip` | Archive | **1.2 MB** | شامل ۴۰۰+ فایل SVG تفکیکی شهرستان‌ها |
+| `dehestans.zip` | Archive | **2.1 MB** | شامل ۲۴۰۰+ فایل SVG تفکیکی دهستان‌ها |
+
+
+## ساختار خروجی
+
+```text
+./
+├── index.html
+├── index_external.html
+├── svg/
+│   ├── iran_provinces.svg
+│   ├── iran_counties.svg
+│   ├── iran_dehestans.svg
+│   ├── provinces/
+│   ├── counties/
+│   └── dehestans/
+```
+
+---
+
+
+## 📄 مجوز (License)
+
+این پروژه متن‌باز است و تحت [مجوز MIT](LICENSE) عرضه می‌شود.
+
+---
+
+## — بازخورد و نظرات ❤️ —
+
+اگر از این پروژه لذت بردید، آن را مفید یافتید یا با مشکلی مواجه شدید، لطفاً با یک **ستاره ⭐** در گیت‌هاب از آن حمایت کنید! 
+اگر پیشنهاد، انتقاد یا مشکلی دارید، حتماً دیدگاه خود را با ما در میان بگذارید.
