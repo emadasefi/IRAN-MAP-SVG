@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Emad Asefi">
+  <meta name="description" content="Emad Asefi" />
+  <title>نقشه تعاملی ایران — استان، شهرستان، دهستان</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.3/Vazirmatn-font-face.css">
+  <style>
+    :root { color-scheme: dark; --bg: #0f172a; --surface: #1e293b; --map-bg: #17263d; --border: #334155; --text: #f8fafc; --muted: #cbd5e1; --accent: #38bdf8; --button: #27364d; --area: #263850; --area-border: #64748b; --area-hover: #0284c7; } body[data-theme="light"] { color-scheme: light; --bg: #f1f5f9; --surface: #ffffff; --map-bg: #e7f1fc; --border: #cbd5e1; --text: #0f172a; --muted: #475569; --accent: #0369a1; --button: #eaf2fa; --area: #c7def5; --area-border: #7188a3; --area-hover: #79b9ef; } * { box-sizing: border-box; } [hidden] { display: none !important; } html, body { margin: 0; width: 100%; } body { height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg); color: var(--text); font-family: Vazirmatn, Tahoma, Arial, sans-serif; } .app { display: flex; flex-direction: column; height: 100%; min-height: 0; } .app-header, .app-footer { flex: none; background: var(--surface); } .app-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 18px; padding: 12px clamp(12px, 3vw, 24px); border-bottom: 1px solid var(--border); z-index: 2; } .brand { display: flex; align-items: center; gap: 10px; min-width: 0; } .brand-icon { width: 12px; height: 12px; flex: none; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); } h1 { margin: 0; font-size: clamp(.9rem, 2vw, 1.08rem); line-height: 1.7; } .controls { display: flex; flex-wrap: wrap; gap: 8px; } button { padding: 7px 13px; border: 1px solid var(--border); border-radius: 9px; background: var(--button); color: var(--text); font: inherit; font-size: .84rem; cursor: pointer; white-space: nowrap; } button:hover, button:focus-visible { background: var(--accent); border-color: var(--accent); color: #fff; } button:focus-visible, .area.clickable:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } #map-viewport { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; background: radial-gradient(circle, var(--map-bg), var(--bg)); } #map { display: block; width: 100%; height: 100%; } .area { fill: var(--area); stroke: var(--area-border); stroke-width: 1.2; vector-effect: non-scaling-stroke; transition: fill .2s, stroke .2s, filter .2s; } .area.clickable { cursor: pointer; } .area.clickable:hover, .area.clickable:focus-visible { fill: var(--area-hover); stroke: var(--text); filter: drop-shadow(0 0 6px var(--area-hover)); } .label { fill: var(--text); stroke: var(--bg); stroke-width: 2px; paint-order: stroke fill; pointer-events: none; font-family: Vazirmatn, Tahoma, sans-serif; font-weight: 600; text-anchor: middle; dominant-baseline: central; } .app-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 18px; padding: 10px clamp(12px, 3vw, 24px); border-top: 1px solid var(--border); color: var(--muted); font-size: .85rem; z-index: 2; } #status { min-width: 0; } #status strong { color: var(--accent); } .credit { color: var(--muted); text-decoration: none; white-space: nowrap; } .credit:hover { color: var(--accent); } #tooltip { position: fixed; z-index: 5; pointer-events: none; opacity: 0; padding: 6px 11px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); box-shadow: 0 4px 16px #0003; font-size: .8rem; transition: opacity .15s; } #loader { position: absolute; inset: 0; z-index: 3; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; background: var(--bg); color: var(--muted); font-size: .9rem; } .spinner { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } } @media (max-width: 600px) { .controls { width: 100%; } .app-footer { font-size: .77rem; } } @media (prefers-reduced-motion: reduce) { .area, #tooltip { transition: none; } .spinner { animation-duration: 1.5s; } }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true"></span>
+        <h1>نقشه تعاملی تقسیمات کشوری ایران</h1>
+      </div>
+
+      <div class="controls">
+        <button id="back" type="button" hidden>🔙 بازگشت به لایه قبل</button>
+        <button id="theme-toggle" type="button">☀️ تم روشن</button>
+      </div>
+    </header>
+
+    <main id="map-viewport">
+      <div id="loader" role="status">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>در حال بارگذاری داده‌های جغرافیایی...</span>
+      </div>
+      <svg id="map" xmlns="http://www.w3.org/2000/svg"
+           preserveAspectRatio="xMidYMid meet"
+           role="group" aria-label="نقشه تعاملی ایران"></svg>
+    </main>
+
+    <footer class="app-footer">
+      <div id="status" aria-live="polite">در حال راه‌اندازی...</div>
+      <a class="credit" href="https://github.com/emadasefi/IRAN-MAP-SVG"
+         target="_blank" rel="noopener noreferrer">
+        تولید شده با ❤️ توسط عماد
+      </a>
+    </footer>
+  </div>
+
+  <div id="tooltip" aria-hidden="true"></div>
+
+  <script>
+    const NS = "http://www.w3.org/2000/svg";
+    const map = document.getElementById("map");
+    const viewport = document.getElementById("map-viewport");
+    const back = document.getElementById("back");
+    const statusEl = document.getElementById("status");
+    const tooltip = document.getElementById("tooltip");
+    const loader = document.getElementById("loader");
+    const themeToggle = document.getElementById("theme-toggle");
+
+    let data = null;
+    let level = 0;
+    let currentProvince = null;
+    let currentCounty = null;
+    let animation = null;
+
+    function svgNode(tag) {
+      return document.createElementNS(NS, tag);
+    }
+
+    function setStatus(...parts) {
+      const nodes = parts.map(part => {
+        if (typeof part === "string") return document.createTextNode(part);
+        const strong = document.createElement("strong");
+        strong.textContent = String(part.strong);
+        return strong;
+      });
+      statusEl.replaceChildren(...nodes);
+    }
+
+    function applyTheme(theme) {
+      document.body.dataset.theme = theme;
+      themeToggle.textContent = theme === "dark" ? "☀️ تم روشن" : "🌙 تم تیره";
+      themeToggle.setAttribute("aria-pressed", String(theme === "light"));
+    }
+
+    try {
+      applyTheme(localStorage.getItem("iran-map-theme") === "light" ? "light" : "dark");
+    } catch (_) {
+      applyTheme("dark");
+    }
+
+    themeToggle.addEventListener("click", () => {
+      const next = document.body.dataset.theme === "dark" ? "light" : "dark";
+      applyTheme(next);
+      try { localStorage.setItem("iran-map-theme", next); } catch (_) {}
+    });
+
+    function fit(bbox) {
+      let [x, y, w, h] = bbox;
+      const cx = x + w / 2;
+      const cy = y + h / 2;
+
+      w = Math.max(w * 1.14, 1);
+      h = Math.max(h * 1.14, 1);
+
+      const rect = map.getBoundingClientRect();
+      const aspect = Math.max(rect.width, 1) / Math.max(rect.height, 1);
+
+      if (w / h < aspect) w = h * aspect;
+      else h = w / aspect;
+
+      return [cx - w / 2, cy - h / 2, w, h];
+    }
+
+    function setBox(box) {
+      map.setAttribute("viewBox", box.map(n => +n.toFixed(3)).join(" "));
+    }
+
+    function stopAnimation() {
+      if (animation !== null) cancelAnimationFrame(animation);
+      animation = null;
+    }
+
+    function animate(box, done) {
+      stopAnimation();
+
+      const oldBox = map.getAttribute("viewBox");
+      if (!oldBox || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        setBox(box);
+        if (done) done();
+        return;
+      }
+
+      const from = oldBox.trim().split(/[\s,]+/).map(Number);
+      let start = null;
+
+      function tick(time) {
+        if (start === null) start = time;
+        const p = Math.min((time - start) / 650, 1);
+        const ease = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+
+        setBox(from.map((value, i) => value + (box[i] - value) * ease));
+
+        if (p < 1) {
+          animation = requestAnimationFrame(tick);
+        } else {
+          animation = null;
+          if (done) done();
+        }
+      }
+
+      animation = requestAnimationFrame(tick);
+    }
+
+    function childrenOf(feature, currentLevel) {
+      return currentLevel === 0
+        ? feature.counties || []
+        : feature.dehestans || [];
+    }
+
+    function draw(features, currentLevel) {
+      tooltip.style.opacity = "0";
+      map.replaceChildren();
+
+      for (const feature of features) {
+        const path = svgNode("path");
+        const children = currentLevel < 2
+          ? childrenOf(feature, currentLevel)
+          : [];
+
+        path.setAttribute("d", feature.path);
+        path.setAttribute("class", "area" + (children.length ? " clickable" : ""));
+        path.setAttribute("fill-rule", "evenodd");
+
+        const title = svgNode("title");
+        title.textContent = feature.name;
+        path.appendChild(title);
+
+        path.addEventListener("mousemove", event => {
+          tooltip.textContent = feature.name;
+          tooltip.style.opacity = "1";
+
+          const width = tooltip.offsetWidth;
+          const height = tooltip.offsetHeight;
+          tooltip.style.left =
+            Math.min(event.clientX + 12, window.innerWidth - width - 8) + "px";
+          tooltip.style.top =
+            Math.min(event.clientY + 12, window.innerHeight - height - 8) + "px";
+        });
+
+        path.addEventListener("mouseleave", () => {
+          tooltip.style.opacity = "0";
+        });
+
+        if (children.length) {
+          path.setAttribute("tabindex", "0");
+          path.setAttribute("role", "button");
+          path.setAttribute("aria-label", feature.name);
+
+          const go = () => currentLevel === 0
+            ? selectProvince(feature)
+            : selectCounty(feature);
+
+          path.addEventListener("click", go);
+          path.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              go();
+            }
+          });
+        }
+
+        map.appendChild(path);
+
+        const [, , w, h] = feature.bbox;
+        const showLabel = currentLevel !== 0 || (w >= 10 && h >= 6);
+
+        if (showLabel && Array.isArray(feature.label)) {
+          const label = svgNode("text");
+          label.setAttribute("class", "label");
+          label.setAttribute("x", feature.label[0]);
+          label.setAttribute("y", feature.label[1]);
+          label.setAttribute(
+            "font-size",
+            Math.max(.45, Math.min(22, h * .18,
+              w / Math.max(2, feature.name.length * .65)))
+          );
+          label.textContent = feature.name;
+          map.appendChild(label);
+        }
+      }
+    }
+
+    function selectProvince(province) {
+      currentProvince = province;
+      currentCounty = null;
+      level = 1;
+      back.hidden = false;
+
+      setStatus(
+        "استان ", { strong: province.name },
+        " — شامل ", { strong: (province.counties || []).length },
+        " شهرستان"
+      );
+
+      animate(fit(province.bbox), () => {
+        if (level === 1 && currentProvince === province) {
+          draw(province.counties || [], 1);
+        }
+      });
+    }
+
+    function selectCounty(county) {
+      currentCounty = county;
+      level = 2;
+
+      setStatus(
+        "شهرستان ", { strong: county.name },
+        " (استان ", currentProvince.name,
+        ") — شامل ", { strong: (county.dehestans || []).length },
+        " دهستان"
+      );
+
+      animate(fit(county.bbox), () => {
+        if (level === 2 && currentCounty === county) {
+          draw(county.dehestans || [], 2);
+        }
+      });
+    }
+
+    back.addEventListener("click", () => {
+      if (!data) return;
+
+      if (level === 2) {
+        level = 1;
+        currentCounty = null;
+        draw(currentProvince.counties || [], 1);
+        animate(fit(currentProvince.bbox));
+
+        setStatus(
+          "استان ", { strong: currentProvince.name },
+          " — شامل ", { strong: (currentProvince.counties || []).length },
+          " شهرستان"
+        );
+      } else if (level === 1) {
+        level = 0;
+        currentProvince = null;
+        draw(data.provinces, 0);
+        animate(fit(data.bbox));
+        back.hidden = true;
+        setStatus("جهت مشاهده شهرستان‌ها روی استان مورد نظر کلیک کنید.");
+      }
+    });
+
+    function currentFeatures() {
+      if (level === 2) return currentCounty.dehestans || [];
+      if (level === 1) return currentProvince.counties || [];
+      return data.provinces;
+    }
+
+    function currentBBox() {
+      if (level === 2) return currentCounty.bbox;
+      if (level === 1) return currentProvince.bbox;
+      return data.bbox;
+    }
+
+    new ResizeObserver(() => {
+      if (!data) return;
+      if (animation !== null) {
+        stopAnimation();
+        draw(currentFeatures(), level);
+      }
+      setBox(fit(currentBBox()));
+    }).observe(viewport);
+
+    function parseSvg(text) {
+      const doc = new DOMParser().parseFromString(text, "image/svg+xml");
+      if (doc.querySelector("parsererror")) {
+        throw new Error("یکی از فایل‌های SVG معتبر نیست.");
+      }
+
+      const features = [...doc.querySelectorAll("path")].map(path => {
+        const bbox = (path.getAttribute("data-bbox") || "")
+          .trim().split(/[\s,]+/).map(Number);
+        const label = (path.getAttribute("data-label") || "")
+          .trim().split(/[\s,]+/).map(Number);
+
+        return {
+          code: path.getAttribute("data-code"),
+          parent: path.getAttribute("data-parent") || null,
+          name: path.getAttribute("data-name") || "",
+          path: path.getAttribute("d"),
+          bbox,
+          label
+        };
+      }).filter(feature =>
+        feature.code &&
+        feature.path &&
+        feature.bbox.length === 4 &&
+        feature.bbox.every(Number.isFinite) &&
+        feature.bbox[2] > 0 &&
+        feature.bbox[3] > 0
+      );
+
+      if (!features.length) {
+        throw new Error("هیچ مسیر دارای data-code و data-bbox در SVG پیدا نشد.");
+      }
+
+      const viewBox = (doc.documentElement.getAttribute("viewBox") || "")
+        .trim().split(/[\s,]+/).map(Number);
+
+      return {
+        features,
+        bbox: viewBox.length === 4 &&
+              viewBox.every(Number.isFinite) &&
+              viewBox[2] > 0 && viewBox[3] > 0
+          ? viewBox
+          : null
+      };
+    }
+
+    async function loadFromSvg() {
+      const files = [
+        "svg/iran_provinces.svg",
+        "svg/iran_counties.svg",
+        "svg/iran_dehestans.svg"
+      ];
+
+      const texts = await Promise.all(files.map(async file => {
+        const response = await fetch(file);
+        if (!response.ok) {
+          throw new Error(`خواندن ${file} ممکن نشد (HTTP ${response.status}).`);
+        }
+        return response.text();
+      }));
+
+      const [provincesLayer, countiesLayer, dehestansLayer] =
+        texts.map(parseSvg);
+
+      const group = features => {
+        const grouped = new Map();
+        for (const feature of features) {
+          if (!grouped.has(feature.parent)) grouped.set(feature.parent, []);
+          grouped.get(feature.parent).push(feature);
+        }
+        return grouped;
+      };
+
+      const countiesByProvince = group(countiesLayer.features);
+      const dehestansByCounty = group(dehestansLayer.features);
+
+      for (const province of provincesLayer.features) {
+        province.counties = countiesByProvince.get(province.code) || [];
+        for (const county of province.counties) {
+          county.dehestans = dehestansByCounty.get(county.code) || [];
+        }
+      }
+
+      return {
+        bbox: provincesLayer.bbox || [0, 0, 1794.2647318766376, 1633.2654196841554],
+        provinces: provincesLayer.features
+      };
+    }
+
+    async function boot() {
+      try {
+        data = await loadFromSvg();
+
+        setBox(fit(data.bbox));
+        draw(data.provinces, 0);
+        setStatus("جهت مشاهده شهرستان‌ها روی استان مورد نظر کلیک کنید.");
+      } catch (error) {
+        setStatus("خطا: " + error.message);
+        console.error(error);
+      } finally {
+        loader.hidden = true;
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>
