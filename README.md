@@ -6,7 +6,7 @@
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/emadasefi/IRAN-MAP-SVG/screen.gif" alt="Demo" width="100%" />
+  <img src="https://raw.githubusercontent.com/emadasefi/IRAN-MAP-SVG/main/screen.gif" alt="Demo" width="100%" />
 </p>
 
 ---
